@@ -1,53 +1,155 @@
-import React, { useState } from 'react';
-import { ArrowIcon } from '../static/down_arrow';
-// import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { DownArrowIcon, UpArrowIcon } from '../static/arrows';
+import { toTitleCase } from '../static/util';
+import axios from 'axios';
 
 const fancyButtonStyle = "cursor-pointer inline-flex items-center justify-between bg-transparent focus:ring-2 focus:outline-none focus:ring-grey rounded-lg px-2";
 
 enum SortType {
-  ascending = 0,
-  descending = 1
+  ascending = "asc",
+  descending = "desc"
 }
 
 function Users() {
-  const [pageSize] = useState(5);
-  const [filter,setFilter] = useState(["",SortType.ascending]);
+  const [pageSize, setPageSize] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useState(["",""]);
+  const [data,setData] = useState({"users": []});
+  const [searchTerm, setSearchTerm] = useState("*");
+
+  useEffect(() => {
+    var query = `?limit=${pageSize}&skip=${pageSize*(currentPage-1)}`;
+    query += (filter[0] !== "")?(`&sortBy=${filter[0]}`):("");
+    query += (filter[1] !== "")?(`&order=${filter[1]}`):("");
+
+    const getUsers = async () => {
+      axios.get(`https://dummyjson.com/users/${query}`)
+        .then((res) => {
+          setData(res.data);
+        })
+        .catch((err) => console.log("ERROR fetching user data",err));
+    };
+
+    getUsers();
+  }, [pageSize, currentPage, filter]);
+
+  const initRows = () => {
+    var rows = [];
+    if ('users' in data) {
+      if (data.users.length === 0) {
+        return (
+          <tr>
+            <td>
+              <h3 className='m-30 place-self-center text-center text-grey'>END OF THE DATA REACHED</h3>
+            </td>
+          </tr>
+        )
+      }
+      for (var user of data.users) {
+        if (searchTerm !== "*" && !matchesRow(user, searchTerm)) continue;
+         rows.push(
+          <tr key={user['id']} className='[&>td]:border-2 [&>td]:border-grey [&>td]:py-2 [&>td]:px-3 content-center hover:bg-grey'>
+            <td>{user['firstName']}</td>
+            <td>{user['lastName']}</td>
+            <td>{user['maidenName'] || "N/A"}</td>
+            <td>{user['birthDate']}</td>
+            <td>{user['age']}</td>
+            <td>{user['gender']}</td>
+            <td>{user['email']}</td>
+            <td>{user['phone']}</td>
+            <td>{user['address']['country']}</td>
+            <td>{user['username']}</td>
+            <td>{user['bloodGroup']}</td>
+            <td>{user['eyeColor']}</td>
+          </tr>
+        )
+      }
+    }
+    return rows;
+  };
+
+  const toggleDropDown = (id : string, val: string = "") => {
+    if (!val) document.getElementById(id)?.classList.toggle('hidden');
+    else if (val === "hide") document.getElementById(id)?.classList.add('hidden');
+    else if (val === "show") document.getElementById(id)?.classList.remove('hidden');
+  }
+
+  const toggleFilter = (attr: string) => {
+    if (filter[0] === attr) {
+      setFilter([attr, (filter[1] === SortType.ascending)?SortType.descending:SortType.ascending]);
+    } else {
+      setFilter([attr, SortType.ascending]);
+    }
+  }
+
+  const matchesRow = (row: any, term: string) => {
+    const keysToCheck = ['firstName', 'lastName', 'maidenName', 'birthDate', 'age', 
+      'gender', 'email', 'phone', 'username', 'bloodGroup', 'eyeColor'];
+    
+    for (let key of keysToCheck) {
+      if (row[key]) {
+        row[key] = row[key].toString();
+        if (row[key].toLowerCase().includes(term.toLowerCase())) return true;
+      }
+    }
+    return false
+  }
 
   return (
     <div className='flex flex-col mt-6 w-full'>
-      <div className='flex mb-6 w-full max-w-6/10 gap-5'>
+      <div className='flex relative mb-6 w-full max-w-6/10 gap-5'>
         <div className='flex items-center justify-between text-center'>
-          <button id="pageLenButton" data-dropdown-toggle="pageLen" className={fancyButtonStyle} type="button">
+          <button id="pageLenButton" className={fancyButtonStyle} type="button" onClick={() => toggleDropDown("sizeOptions")}>
             <span className='text-center align-middle'>{pageSize}</span>
-            <ArrowIcon className="w-1.5 h-1.5 ms-3"/>
+            <DownArrowIcon className="w-1.5 h-1.5 ms-3"/>
           </button>
           <div className='inline-flex items-center ms-2'>
             <span className='cursor-default text-center align-middle mt-0.5'>Entries</span>
           </div>
         </div>
-        <div className='text-center inline-flex items-center border-x-3 border-grey'>
-          <svg className="cursor-pointer w-5.5 h-5.5 mx-5 m-auto stroke-black" viewBox="0 0 22 22" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg">
-            <circle fill="none" stroke-miterlimit="10" stroke-width="1.91px" cx="9.14" cy="9.14" r="7.64"/>
-            <line fill="none" stroke-miterlimit="10" stroke-width="1.91px" x1="20.5" y1="20.5" x2="14.39" y2="14.39"/>
+        <div id="sizeOptions" className='z-1 block absolute left-0 top-10 w-10 border-2 border-black rounded bg-white hidden'>
+          {(() => {
+            const sizeOptions = [];
+            const sizes = [5, 10, 20, 50];
+            for (const size of sizes) {
+              sizeOptions.push(
+                <div key={size} className='hoverButton cursor-pointer p-2 w-1/1 hover:bg-grey' onClick={() => {setPageSize(size); toggleDropDown("sizeOptions");}}>
+                  <span className='text-center align-middle'>{size}</span>
+                </div>
+              );
+            }
+            return sizeOptions;
+          })()}
+        </div>
+        <div className='relative text-center inline-flex items-center border-x-3 border-grey'>
+          <svg className="cursor-pointer w-5.5 h-5.5 mx-5 m-auto stroke-black" viewBox="0 0 22 22" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
+          onClick={() => toggleDropDown("searchBar")}>
+            <circle fill="none" strokeMiterlimit="10" strokeWidth="1.91px" cx="9.14" cy="9.14" r="7.64"/>
+            <line fill="none" strokeMiterlimit="10" strokeWidth="1.91px" x1="20.5" y1="20.5" x2="14.39" y2="14.39"/>
           </svg>
+          <div id="searchBar" className='z-1 block absolute left-0 top-10 w-3/1 border-2 border-black rounded bg-white hidden'>
+            <div className='hoverButton p-2 w-1/1'>
+              <textarea className='text-center align-middle resize-none px-0.5' maxLength={35} onInput={(e) => setSearchTerm(e.currentTarget.value)}></textarea>
+            </div>
+          </div>
         </div>
         <div className='flex items-center justify-between text-center'>
-            <button data-dropdown-toggle="pageLen" className={fancyButtonStyle} type="button">
-              <span className='text-center align-middle'>Name</span>
-              <ArrowIcon className="w-1.5 h-1.5 ms-2"/>
-            </button>
-            <button data-dropdown-toggle="pageLen" className={fancyButtonStyle} type="button">
-              <span className='text-center align-middle'>Email</span>
-              <ArrowIcon className="w-1.5 h-1.5 ms-2"/>
-            </button>
-            <button data-dropdown-toggle="pageLen" className={fancyButtonStyle} type="button">
-              <span className='text-center align-middle'>Birth Date</span>
-              <ArrowIcon className="w-1.5 h-1.5 ms-2"/>
-            </button>
-            <button data-dropdown-toggle="pageLen" className={fancyButtonStyle} type="button">
-              <span className='text-center align-middle'>Gender</span>
-              <ArrowIcon className="w-1.5 h-1.5 ms-2"/>
-            </button>
+          {(() => {
+            const attrs = [["Name","firstName"], ["Email","email"],["Birth Date","birthDate"],["Gender","gender"]];
+            const filterButtons = [];
+
+            for (let attr of attrs) {
+              filterButtons.push(
+                <button key={attr[1]} data-dropdown-toggle="pageLen" className={"filterButton "+fancyButtonStyle} type="button" 
+                onClick={() => toggleFilter(attr[1])}>
+                  <span className='text-center align-middle'>{toTitleCase(attr[0])}</span>
+                  <DownArrowIcon className={`w-1.5 h-1.5 ms-2 ${(filter[0] === attr[1] && filter[1] === SortType.descending)?"":"hidden"}`}/>
+                  <UpArrowIcon className={`w-1.5 h-1.5 ms-2 ${(filter[0] === attr[1] && filter[1] === SortType.ascending)?"":"hidden"}`}/>
+                </button>
+              );
+            }
+            return filterButtons;
+          })()}
         </div>
       </div>
     <table className='table-auto mb-6 border-collapse border-2 border-grey'>
@@ -56,28 +158,43 @@ function Users() {
             <th>FIRST NAME</th>
             <th>LAST NAME</th>
             <th>MAIDEN NAME</th>
+            <th>BIRTHDATE</th>
             <th>AGE</th>
             <th>GENDER</th>
             <th>EMAIL</th>
+            <th>PHONE</th>
+            <th>COUNTRY</th>
             <th>USERNAME</th>
             <th>BLOODGROUP</th>
             <th>EYECOLOR</th>
         </tr>
       </thead>
-      <tbody className='content-center'>
-        <tr className='text-center [&>td]:border-2 [&>td]:border-grey [&>td]:py-2 hover:bg-grey'>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-            <td>TEST DATA</td>
-        </tr>
+      <tbody className='relative content-center'>
+        {initRows()}
       </tbody>
     </table>
+    <div className='flex h-5 justify-center text-center'>
+      <div className="flex h-full w-1/3 justify-between items-center">
+        <svg width="16px" height="16px" viewBox="0 0 24 24" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" className="cursor-pointer icon flat-line fill-black"
+        onClick={() => setCurrentPage(Math.max(currentPage-1,1))}>
+          <line id="primary" x1="21" y1="12" x2="3" y2="12" fill="none" stroke="rgb(0, 0, 0)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}></line>
+          <polyline id="primary-2" data-name="primary" points="6 9 3 12 6 15" fill="none" stroke="rgb(0, 0, 0)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}></polyline>
+        </svg>
+        {(() => {
+        const pageOptions = [];
+        const pages = 8;
+        for (let i = 1; i <= pages; i++) {
+          pageOptions.push(<span key={i} className={`cursor-pointer align-middle items-center ${i === currentPage?'mb-3 font-bold':""} text-center`} onClick={(function(page) { return () => setCurrentPage(page); })(i)}>{i}</span>);
+        }
+        return pageOptions;
+        })()}
+        <svg width="16px" height="16px" viewBox="0 0 24 24" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" className="cursor-pointer icon flat-line fill-black" 
+        onClick={() => setCurrentPage(Math.min(currentPage+1,8))}>
+          <line id="primary" x1="21" y1="12" x2="3" y2="12" fill="none" stroke="rgb(0, 0, 0)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}></line>
+          <polyline id="primary-2" data-name="primary" points="18 9 21 12 18 15" fill="none" stroke="rgb(0, 0, 0)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}></polyline>
+        </svg>
+      </div>
+    </div>
     </div>
   );
 }

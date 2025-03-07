@@ -7,7 +7,9 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-black: #322625;
+    --color-white: #fff;
     --spacing: 0.25rem;
+    --font-weight-bold: 700;
     --font-weight-extrabold: 800;
     --radius-lg: 0.5rem;
     --default-font-family: var(--font-sans);
@@ -169,6 +171,21 @@
   }
 }
 @layer utilities {
+  .absolute {
+    position: absolute;
+  }
+  .relative {
+    position: relative;
+  }
+  .top-10 {
+    top: calc(var(--spacing) * 10);
+  }
+  .left-0 {
+    left: calc(var(--spacing) * 0);
+  }
+  .z-1 {
+    z-index: 1;
+  }
   .container {
     width: 100%;
     @media (width >= 40rem) {
@@ -186,6 +203,9 @@
     @media (width >= 96rem) {
       max-width: 96rem;
     }
+  }
+  .m-30 {
+    margin: calc(var(--spacing) * 30);
   }
   .m-\[10px\] {
     margin: 10px;
@@ -214,6 +234,9 @@
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
   }
+  .mb-3 {
+    margin-bottom: calc(var(--spacing) * 3);
+  }
   .mb-6 {
     margin-bottom: calc(var(--spacing) * 6);
   }
@@ -222,6 +245,9 @@
   }
   .flex {
     display: flex;
+  }
+  .hidden {
+    display: none;
   }
   .inline-block {
     display: inline-block;
@@ -235,14 +261,32 @@
   .h-1\.5 {
     height: calc(var(--spacing) * 1.5);
   }
+  .h-5 {
+    height: calc(var(--spacing) * 5);
+  }
   .h-5\.5 {
     height: calc(var(--spacing) * 5.5);
+  }
+  .h-full {
+    height: 100%;
   }
   .w-1\.5 {
     width: calc(var(--spacing) * 1.5);
   }
+  .w-1\/1 {
+    width: calc(1/1 * 100%);
+  }
+  .w-1\/3 {
+    width: calc(1/3 * 100%);
+  }
+  .w-3\/1 {
+    width: calc(3/1 * 100%);
+  }
   .w-5\.5 {
     width: calc(var(--spacing) * 5.5);
+  }
+  .w-10 {
+    width: calc(var(--spacing) * 10);
   }
   .w-full {
     width: 100%;
@@ -259,11 +303,17 @@
   .border-collapse {
     border-collapse: collapse;
   }
+  .transform {
+    transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y);
+  }
   .cursor-default {
     cursor: default;
   }
   .cursor-pointer {
     cursor: pointer;
+  }
+  .resize-none {
+    resize: none;
   }
   .flex-col {
     flex-direction: column;
@@ -277,8 +327,17 @@
   .justify-between {
     justify-content: space-between;
   }
+  .justify-center {
+    justify-content: center;
+  }
   .gap-5 {
     gap: calc(var(--spacing) * 5);
+  }
+  .place-self-center {
+    place-self: center;
+  }
+  .rounded {
+    border-radius: 0.25rem;
   }
   .rounded-lg {
     border-radius: var(--radius-lg);
@@ -295,6 +354,9 @@
     border-inline-style: var(--tw-border-style);
     border-inline-width: 3px;
   }
+  .border-black {
+    border-color: var(--color-black);
+  }
   .border-grey {
     border-color: var(--color-grey);
   }
@@ -304,8 +366,20 @@
   .bg-transparent {
     background-color: transparent;
   }
+  .bg-white {
+    background-color: var(--color-white);
+  }
+  .fill-black {
+    fill: var(--color-black);
+  }
   .stroke-black {
     stroke: var(--color-black);
+  }
+  .p-2 {
+    padding: calc(var(--spacing) * 2);
+  }
+  .px-0\.5 {
+    padding-inline: calc(var(--spacing) * 0.5);
   }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
@@ -316,9 +390,16 @@
   .align-middle {
     vertical-align: middle;
   }
+  .font-bold {
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
+  }
   .font-extrabold {
     --tw-font-weight: var(--font-weight-extrabold);
     font-weight: var(--font-weight-extrabold);
+  }
+  .text-grey {
+    color: var(--color-grey);
   }
   .shadow-\[inset_0px_-10px\] {
     --tw-shadow: inset 0px -10px var(--tw-shadow-color, currentcolor);
@@ -326,6 +407,9 @@
   }
   .shadow-yellow {
     --tw-shadow-color: var(--color-yellow);
+  }
+  .filter {
+    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
   .hover\:bg-grey {
     &:hover {
@@ -360,6 +444,11 @@
   .\[\&\>td\]\:border-grey {
     &>td {
       border-color: var(--color-grey);
+    }
+  }
+  .\[\&\>td\]\:px-3 {
+    &>td {
+      padding-inline: calc(var(--spacing) * 3);
     }
   }
   .\[\&\>td\]\:py-2 {
@@ -398,6 +487,31 @@ body {
 button {
   font-family: -apple-system, BlinkMacSystemFont, 'NeutraText';
   color: var(--color-black);
+}
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: rotateX(0);
+}
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: rotateY(0);
+}
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: rotateZ(0);
+}
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: skewX(0);
+}
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: skewY(0);
 }
 @property --tw-border-style {
   syntax: "*";
@@ -462,4 +576,44 @@ button {
   syntax: "*";
   inherits: false;
   initial-value: 0 0 #0000;
+}
+@property --tw-blur {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-brightness {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-contrast {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-grayscale {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-hue-rotate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-invert {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-opacity {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-saturate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-sepia {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-drop-shadow {
+  syntax: "*";
+  inherits: false;
 }
