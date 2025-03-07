@@ -5,6 +5,10 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { store } from './app/store';
 import { Provider } from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react'; 
+import {persistStore} from 'redux-persist';
+
+const persistor = persistStore(store);
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
@@ -12,7 +16,9 @@ if (rootElement) {
   root.render(
     <React.StrictMode>
       <Provider store={store}>
-        <App />
+        <PersistGate loading={null} persistor={persistor}>
+          <App />
+        </PersistGate>
       </Provider>
     </React.StrictMode>
   );
