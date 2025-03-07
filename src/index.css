@@ -1,13 +1,27 @@
+@import "tailwindcss";
+@tailwind utilities;
+
+@theme {
+  --color-black: #322625;
+  --color-grey: #ebebeb;
+  --color-blue: #c0e3e5;
+  --color-yellow: #fdc936;
+}
+
+@font-face {
+  font-family: 'NeutraText';
+  src: local('Neutra _Text_Book'), url(./static/Neutra_Text_Book.otf) format('opentype');
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'NeutraText';
+  color: var(--color-black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+button {
+  font-family: -apple-system, BlinkMacSystemFont, 'NeutraText';
+  color: var(--color-black);
 }
