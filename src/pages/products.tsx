@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { DownArrowIcon, UpArrowIcon } from '../static/arrows';
 import { toTitleCase } from '../static/util';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import {set} from "../app/recordCount";
+import { useSelector } from 'react-redux';
 
 const fancyButtonStyle = "cursor-pointer inline-flex items-center justify-between bg-transparent focus:ring-2 focus:outline-none focus:ring-grey rounded-lg px-2";
 
@@ -11,7 +14,10 @@ enum SortType {
 }
 
 function Products() {
-  const [pageSize, setPageSize] = useState(5);
+
+  let dispatch = useDispatch();
+
+  const pageSize = useSelector((state: { recordCount: { value: number } }) => state.recordCount.value);
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState(["",""]);
   const [data,setData] = useState({"products": []});
@@ -112,7 +118,7 @@ function Products() {
             const sizes = [5, 10, 20, 50];
             for (const size of sizes) {
               sizeOptions.push(
-                <div key={size} className='hoverButton cursor-pointer p-2 w-1/1 hover:bg-grey' onClick={() => {setPageSize(size); toggleDropDown("sizeOptions");}}>
+                <div key={size} className='hoverButton cursor-pointer p-2 w-1/1 hover:bg-grey' onClick={() => {dispatch(set(size)); toggleDropDown("sizeOptions");}}>
                   <span className='text-center align-middle'>{size}</span>
                 </div>
               );
