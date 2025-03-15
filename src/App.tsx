@@ -5,6 +5,7 @@ import {
   Route,
 } from "react-router-dom";
 
+import DataTable from './pages/dataTable';
 import Products from './pages/products';
 import Users from './pages/users';
 
@@ -19,6 +20,7 @@ function App() {
               <Route path="/" element={<div>No route specified.</div>} />
               <Route path="/products" element={<Products/>} />
               <Route path="/users" element={<Users/>}/>
+              <Route path="/datatable-reusable" element={<DataTable dataLabel='products' tableFields={["title","description","rating","sku","shippingInformation"]} filterFields={[["Rating","rating"]]}/>}/>
         </Routes>
       </Router>
     </div>
